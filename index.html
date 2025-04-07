@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Matemático de los Datos Sociales y Demográficos de la República Dominicana</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #0a192f, #162d4e);
+            color: #e6e6e6;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1300px;
+            width: 94%;
+            padding: 70px;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 35px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(30px);
+            border: 3px solid rgba(46, 204, 113, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: -60px;
+            width: 250px;
+            height: 250px;
+            background: rgba(46, 204, 113, 0.15);
+            filter: blur(120px);
+            z-index: 0;
+        }
+
+        .container::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            right: -60px;
+            width: 250px;
+            height: 250px;
+            background: rgba(46, 204, 113, 0.15);
+            filter: blur(120px);
+            z-index: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f5f5f5;
+            font-size: 2.8em;
+            margin-bottom: 40px;
+            text-shadow: 0 5px 12px rgba(46, 204, 113, 0.5);
+            font-weight: 700;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .creditos {
+            text-align: center;
+            color: #a0aec0;
+            margin-bottom: 50px;
+            font-size: 1.25em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .integrantes {
+            font-size: 1.1em;
+            color: #718096;
+            margin-top: 18px;
+            opacity: 0.9;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 45px;
+            border-bottom: 6px solid #2d3748;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-button {
+            background: none;
+            color: #a0aec0;
+            border: none;
+            padding: 22px 45px;
+            cursor: pointer;
+            border-radius: 15px 15px 0 0;
+            transition: all 0.6s ease;
+            font-weight: 600;
+            font-family: 'Roboto', sans-serif;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 6px;
+            background: #2ecc71;
+            transition: width 0.6s ease;
+            z-index: 1;
+        }
+
+        .tab-button:hover {
+            color: #f7fafc;
+        }
+
+        .tab-button:hover::after {
+            width: 100%;
+        }
+
+        .tab-button.active {
+            color: #2ecc71;
+        }
+
+        .tab-button.active::after {
+            width: 100%;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 45px;
+            background: #1a202c;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            transform: translateY(0);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 45px;
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            font-weight: 600;
+            color: #f7fafc;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        input {
+            padding: 18px;
+            border: 3px solid #4a5568;
+            border-radius: 18px;
+            background: #0f172a;
+            color: #e6e6e6;
+            font-size: 1.15em;
+            transition: border-color 0.5s, box-shadow 0.5s;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2ecc71;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.6);
+        }
+
+        button {
+            background: linear-gradient(45deg, #2ecc71, #219653);
+            color: #f7fafc;
+            border: none;
+            padding: 20px 60px;
+            cursor: pointer;
+            border-radius: 18px;
+            font-weight: 700;
+            transition: transform 0.4s, background 0.5s, box-shadow 0.5s;
+            box-shadow: 0 12px 50px rgba(46, 204, 113, 0.7);
+            font-size: 1.25em;
+            position: relative;
+            z-index: 1;
+        }
+
+        button:hover {
+            transform: translateY(-6px);
+            background: linear-gradient(45deg, #219653, #1e8449);
+            box-shadow: 0 15px 60px rgba(46, 204, 113, 0.8);
+        }
+
+        .resultado {
+            margin-top: 45px;
+            padding: 35px 40px;
+            background: #0f172a;
+            border-radius: 18px;
+            font-size: 1.3em;
+            color: #2ecc71;
+            border-left: 10px solid #2ecc71;
+            animation: slideIn 0.9s ease-out;
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.35);
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-35px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        canvas {
+            margin-top: 45px;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            background: #1a202c;
+            border-radius: 30px;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.6);
+            border: 3px solid #4a5568;
+            position: relative;
+            z-index: 1;
+        }
+
+        .matematicas-relacionadas {
+            padding: 45px;
+            background: #1a202c;
+            border-radius: 30px;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.6);
+            margin-top: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .matematicas-relacionadas h3 {
+            color: #2ecc71;
+            margin-top: 40px;
+            font-size: 1.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .matematicas-relacionadas p {
+            color: #e6e6e6;
+            line-height: 2.1;
+            margin-top: 25px;
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="creditos">
+            <h1>Análisis Matemático de los Datos Sociales y Demográficos de la República Dominicana</h1>
+            <p class="integrantes">Realizado por: José Francis Mateo Jiménez, Joan, Axel, Endry | Profesor: Luis David Mercedes</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('poblacion')">Población</button>
+            <button class="tab-button" onclick="openTab('pib')">PIB</button>
+            <button class="tab-button" onclick="openTab('turismo')">Turismo</button>
+            <button class="tab-button" onclick="openTab('medioambiente')">Medio Ambiente</button>
+            <button class="tab-button" onclick="openTab('inmigracion')">Inmigración</button>
+            <button class="tab-button" onclick="openTab('matematicas')">Matemáticas</button>
+        </div>
+
+        <!-- Población -->
+        <div id="poblacion" class="tab-content active">
+            <h2>Crecimiento Poblacional</h2>
+            <form id="form-poblacion">
+                <label>Habitantes (K): <input type="number" id="K" value="15000000"></label>
+                <label>Hijos (a): <input type="number" step="0.1" id="a" value="5.3"></label>
+                <label>Tasa de crecimiento (r): <input type="number" step="0.01" id="r" value="0.03"></label>
+                <label>Años (t): <input type="number" id="t-poblacion" value="75"></label>
+                <button type="button" onclick="calcularPoblacion()">Calcular</button>
+            </form>
+            <div id="resultado-poblacion" class="resultado"></div>
+            <canvas id="grafico-poblacion"></canvas>
+        </div>
+
+        <!-- PIB -->
+        <div id="pib" class="tab-content">
+            <h2>PIB y Crecimiento Económico</h2>
+            <form id="form-pib">
+                <label>Valor inicial (A): <input type="number" id="A" value="1000000000"></label>
+                <label>Tasa de crecimiento (b): <input type="number" step="0.001" id="b" value="0.067"></label>
+                <label>Años (t): <input type="number" id="t-pib" value="63"></label>
+                <button type="button" onclick="calcularPIB()">Calcular</button>
+            </form>
+            <div id="resultado-pib" class="resultado"></div>
+            <canvas id="grafico-pib"></canvas>
+        </div>
+
+        <!-- Turismo -->
+        <div id="turismo" class="tab-content">
+            <h2>Turismo y Temporadas</h2>
+            <form id="form-turismo">
+                <label>Promedio anual (m): <input type="number" id="m" value="10000"></label>
+                <label>Número de turistas en temporada alta (n): <input type="number" id="n" value="2000"></label>
+                <label>Número de turistas en temporada baja (p): <input type="number" id="p" value="1000"></label>
+                <label>Mes (1-12): <input type="number" min="1" max="12" id="month" value="7"></label>
+                <button type="button" onclick="calcularTurismo()">Calcular</button>
+            </form>
+            <div id="resultado-turismo" class="resultado"></div>
+            <canvas id="grafico-turismo"></canvas>
+        </div>
+
+        <!-- Medio Ambiente -->
+        <div id="medioambiente" class="tab-content">
+            <h2>Emisiones de CO2</h2>
+            <form id="form-medioambiente">
+                <label>Coeficiente de emisión (q): <input type="number" step="0.001" id="q" value="0.029"></label>
+                <label>Valor base de emisiones (r): <input type="number" step="0.001" id="r-co2" value="0.303"></label>
+                <label>Años (t): <input type="number" id="t-co2" value="61"></label>
+                <button type="button" onclick="calcularCO2()">Calcular</button>
+            </form>
+            <div id="resultado-medioambiente" class="resultado"></div>
+            <canvas id="grafico-medioambiente"></canvas>
+        </div>
+
+        <!-- Inmigración -->
+        <div id="inmigracion" class="tab-content">
+            <h2>Inmigración</h2>
+            <form id="form-inmigracion">
+                <label>Capacidad máxima (I_max): <input type="number" id="I_max" value="500000"></label>
+                <label>Tasa de inmigración (k): <input type="number" step="0.01" id="k" value="0.05"></label>
+                <label>Años (t): <input type="number" id="t-inmigracion" value="50"></label>
+                <button type="button" onclick="calcularInmigracion()">Calcular</button>
+            </form>
+            <div id="resultado-inmigracion" class="resultado"></div>
+            <canvas id="grafico-inmigracion"></canvas>
+        </div>
+
+        <!-- Matemáticas Relacionadas -->
+        <div id="matematicas" class="tab-content">
+            <h2>Matemáticas Relacionadas</h2>
+            <div class="matematicas-relacionadas">
+                <h3>Crecimiento Poblacional</h3>
+                <p>Se utiliza una función logística para modelar cómo la población crece rápidamente al inicio y luego se estabiliza debido a límites de recursos.</p>
+
+                <h3>PIB y Crecimiento Económico</h3>
+                <p>Se emplea una función exponencial para representar el crecimiento continuo del PIB a una tasa constante, típico en economías en desarrollo.</p>
+
+                <h3>Turismo y Modelado de Temporadas</h3>
+                <p>Se utilizan funciones trigonométricas para capturar las variaciones estacionales en el turismo, como los picos y valles en los meses.</p>
+
+                <h3>Impacto Medioambiental</h3>
+                <p>Se aplica un modelo lineal para mostrar cómo las emisiones de CO2 aumentan de manera constante con el paso del tiempo.</p>
+
+                <h3>Inmigración</h3>
+                <p>Se emplea una función exponencial modificada para modelar el crecimiento de la inmigración, que aumenta rápidamente al inicio y se estabiliza al acercarse a una capacidad máxima.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales para almacenar las instancias de las gráficas
+        let chartPoblacion = null;
+        let chartPIB = null;
+        let chartTurismo = null;
+        let chartCO2 = null;
+        let chartInmigracion = null;
+
+        // Funciones para manejar las pestañas
+        function openTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Funciones de cálculo
+        function calcularPoblacion() {
+            const K = parseFloat(document.getElementById('K').value);
+            const a = parseFloat(document.getElementById('a').value);
+            const r = parseFloat(document.getElementById('r').value);
+            const t = parseFloat(document.getElementById('t-poblacion').value);
+            
+            const P = K / (1 + a * Math.exp(-r * t));
+            document.getElementById('resultado-poblacion').innerText = `Población proyectada: ${P.toFixed(2)} personas`;
+            
+            generarGraficoPoblacion(K, a, r);
+        }
+
+        function calcularPIB() {
+            const A = parseFloat(document.getElementById('A').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const t = parseFloat(document.getElementById('t-pib').value);
+            
+            const GDP = A * Math.exp(b * t);
+            document.getElementById('resultado-pib').innerText = `PIB proyectado: $${GDP.toFixed(2)}`;
+            
+            generarGraficoPIB(A, b);
+        }
+
+        function calcularTurismo() {
+            const m = parseFloat(document.getElementById('m').value);
+            const n = parseFloat(document.getElementById('n').value);
+            const p = parseFloat(document.getElementById('p').value);
+            const month = parseInt(document.getElementById('month').value);
+            
+            const arrivals = m + n * Math.sin(2 * Math.PI * month / 12) + p * Math.cos(2 * Math.PI * month / 12);
+            document.getElementById('resultado-turismo').innerText = `Llegadas proyectadas: ${arrivals.toFixed(2)} turistas`;
+            
+            generarGraficoTurismo(m, n, p);
+        }
+
+        function calcularCO2() {
+            const q = parseFloat(document.getElementById('q').value);
+            const r = parseFloat(document.getElementById('r-co2').value);
+            const t = parseFloat(document.getElementById('t-co2').value);
+            
+            const CO2 = q * t + r;
+            document.getElementById('resultado-medioambiente').innerText = `Emisiones de CO2 proyectadas: ${CO2.toFixed(3)} toneladas per cápita`;
+            
+            generarGraficoCO2(q, r);
+        }
+
+        function calcularInmigracion() {
+            const I_max = parseFloat(document.getElementById('I_max').value);
+            const k = parseFloat(document.getElementById('k').value);
+            const t = parseFloat(document.getElementById('t-inmigracion').value);
+            
+            const I = I_max * (1 - Math.exp(-k * t));
+            document.getElementById('resultado-inmigracion').innerText = `Inmigrantes proyectados: ${I.toFixed(2)} personas`;
+            
+            generarGraficoInmigracion(I_max, k);
+        }
+
+        // Funciones para generar gráficos
+        function generarGraficoPoblacion(K, a, r) {
+            const ctx = document.getElementById('grafico-poblacion').getContext('2d');
+            const tValues = Array.from({length: 101}, (_, i) => i);
+            const PValues = tValues.map(t => K / (1 + a * Math.exp(-r * t)));
+            
+            if (chartPoblacion) {
+                chartPoblacion.destroy();
+            }
+
+            chartPoblacion = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tValues,
+                    datasets: [{
+                        label: 'Población',
+                        data: PValues,
+                        borderColor: '#2ecc71',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: { title: { display: true, text: 'Años', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } },
+                        y: { title: { display: true, text: 'Población', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e6e6e6'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generarGraficoPIB(A, b) {
+            const ctx = document.getElementById('grafico-pib').getContext('2d');
+            const tValues = Array.from({length: 101}, (_, i) => i);
+            const GDPValues = tValues.map(t => A * Math.exp(b * t));
+            
+            if (chartPIB) {
+                chartPIB.destroy();
+            }
+
+            chartPIB = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tValues,
+                    datasets: [{
+                        label: 'PIB',
+                        data: GDPValues,
+                        borderColor: '#2ecc71',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: { title: { display: true, text: 'Años', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } },
+                        y: { title: { display: true, text: 'PIB', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e6e6e6'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generarGraficoTurismo(m, n, p) {
+            const ctx = document.getElementById('grafico-turismo').getContext('2d');
+            const months = Array.from({length: 12}, (_, i) => i + 1);
+            const arrivalsValues = months.map(month => m + n * Math.sin(2 * Math.PI * month / 12) + p * Math.cos(2 * Math.PI * month / 12));
+            
+            if (chartTurismo) {
+                chartTurismo.destroy();
+            }
+
+            chartTurismo = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Llegadas de Turistas',
+                        data: arrivalsValues,
+                        borderColor: '#2ecc71',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: { title: { display: true, text: 'Mes', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } },
+                        y: { title: { display: true, text: 'Turistas', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e6e6e6'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generarGraficoCO2(q, r) {
+            const ctx = document.getElementById('grafico-medioambiente').getContext('2d');
+            const tValues = Array.from({length: 101}, (_, i) => i);
+            const CO2Values = tValues.map(t => q * t + r);
+            
+            if (chartCO2) {
+                chartCO2.destroy();
+            }
+
+            chartCO2 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tValues,
+                    datasets: [{
+                        label: 'Emisiones de CO2',
+                        data: CO2Values,
+                        borderColor: '#2ecc71',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: { title: { display: true, text: 'Años', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } },
+                        y: { title: { display: true, text: 'CO2 per cápita', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e6e6e6'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generarGraficoInmigracion(I_max, k) {
+            const ctx = document.getElementById('grafico-inmigracion').getContext('2d');
+            const tValues = Array.from({length: 101}, (_, i) => i);
+            const IValues = tValues.map(t => I_max * (1 - Math.exp(-k * t)));
+            
+            if (chartInmigracion) {
+                chartInmigracion.destroy();
+            }
+
+            chartInmigracion = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tValues,
+                    datasets: [{
+                        label: 'Inmigrantes',
+                        data: IValues,
+                        borderColor: '#2ecc71',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    scales: {
+                        x: { title: { display: true, text: 'Años', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } },
+                        y: { title: { display: true, text: 'Inmigrantes', color: '#e6e6e6' }, ticks: { color: '#a0aec0' }, grid: { color: 'rgba(74, 85, 104, 0.3)' } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e6e6e6'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inicializar la primera pestaña y la gráfica inicial
+        window.onload = function() {
+            openTab('poblacion');
+            calcularPoblacion();
+        };
+    </script>
+</body>
+</html>
